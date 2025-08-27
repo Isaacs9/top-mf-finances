@@ -1,6 +1,6 @@
 # Microfrontend Top finances (mf-top-finances)
 
-Este projeto é o microfrontend responsável pelo módulo de **usuários** dentro da plataforma Top. Ele é desenvolvido 
+Este projeto é o microfrontend responsável pelo módulo de **finanças** dentro da plataforma Top. Ele é desenvolvido 
 em **React 18 + Vite** e utiliza **Module Federation** para integração com o frontend host principal (`top-frontend`).
 
 ## Estrutura do Projeto
@@ -93,7 +93,8 @@ export default defineConfig({
 
 ## Integração com Host Principal
 
-O microfrontend de usuários é consumido pelo `top-frontend` via Module Federation. No host, você importa o `financesApp` e 
+O microfrontend de finanças é consumido pelo `top-frontend` via Module Federation. No host, você importa o 
+`financesApp` e 
 `AuthContext`:
 
 ```ts
@@ -103,11 +104,10 @@ const AuthContext = React.lazy(() => import("finances/AuthContext"));
 
 ---
 
-## Estrutura para CRUD de Usuários
+## Estrutura para CRUD de Finanças
 
-* `financesPage.tsx`: página principal de listagem e manipulação de usuários.
-* `financeservice.ts`: encapsula todas as chamadas HTTP ao gateway.
-* `AuthContext.tsx`: gerencia token e dados do usuário logado.
+* `financesPage.tsx`: página principal de listagem e manipulação de finanças.
+* `financeService.ts`: encapsula todas as chamadas HTTP ao gateway.
 
 ---
 
@@ -133,7 +133,8 @@ coverage/
 
 ## Observações
 
-* Certifique-se de que o **API Gateway (`top-api-gateway`)** esteja rodando em `http://localhost:3000` para que o microfrontend consiga consumir os endpoints de usuários.
+* Certifique-se de que o **API Gateway (`top-api-gateway`)** esteja rodando em `http://localhost:3000` para que o 
+  microfrontend consiga consumir os endpoints de finanças.
 * Durante o desenvolvimento, use `npm run dev` para hot reload e integração com o host.
 * Para produção, execute `npm run build` e configure o host para apontar para o build gerado (`/dist/assets/remoteEntry.
 js`).
