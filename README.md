@@ -1,0 +1,151 @@
+# Microfrontend Top finances (mf-top-finances)
+
+Este projeto é o microfrontend responsável pelo módulo de **usuários** dentro da plataforma Top. Ele é desenvolvido 
+em **React 18 + Vite** e utiliza **Module Federation** para integração com o frontend host principal (`top-frontend`).
+
+## Estrutura do Projeto
+
+```
+mf-top-finances/
+├─ src/
+│  ├─ components/          # Componentes React reutilizáveis
+│  ├─ pages/               # Páginas do microfrontend (financesPage etc.)
+│  ├─ services/            # Serviços para chamadas à API do gateway
+│  ├─ App.tsx              # Componente raiz do microfrontend
+│  └─ index.tsx
+├─ public/
+├─ package.json
+├─ vite.config.ts
+└─ tsconfig.json
+```
+
+### Tecnologias utilizadas
+
+* React 18
+* Vite 4
+* TypeScript
+* Module Federation (`@originjs/vite-plugin-federation`)
+* Fetch API para consumo de microserviços via API Gateway
+* Context API para autenticação compartilhada
+
+---
+
+## Scripts Disponíveis
+
+```bash
+# Instala as dependências
+npm install
+
+# Executa em modo de desenvolvimento (localhost:5001)
+npm run dev
+
+# Gera o build de produção
+npm run build
+
+# Preview do build
+npm run serve
+```
+
+---
+
+## Configuração do Vite e Module Federation
+
+Arquivo `vite.config.ts`:
+
+```ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import federation from "@originjs/vite-plugin-federation"
+
+export default defineConfig({
+  plugins: [
+    react(),
+    federation({
+      name: "finances",
+      filename: "remoteEntry.js",
+      exposes: {
+        "./financesApp": "./src/FinanceApp.tsx",
+      },
+      remotes: {
+        host: "http://localhost:5000/assets/remoteEntry.js"
+      },
+      shared: ["react", "react-dom"]
+    })
+  ],
+  server: {
+    port: 5001,
+    strictPort: true,
+  },
+  build: {
+    modulePreload: false,
+    target: 'esnext',
+    minify: false,
+    cssCodeSplit: false
+  }
+})
+```
+
+* `exposes`: exporta componentes e contexto para o shell e outros MF.
+* `remotes`: importa o host principal.
+* `shared`: compartilha dependências comuns para evitar duplicação.
+
+---
+
+## Integração com Host Principal
+
+O microfrontend de usuários é consumido pelo `top-frontend` via Module Federation. No host, você importa o `financesApp` e 
+`AuthContext`:
+
+```ts
+const financesApp = React.lazy(() => import("finances/financesApp"));
+const AuthContext = React.lazy(() => import("finances/AuthContext"));
+```
+
+---
+
+## Estrutura para CRUD de Usuários
+
+* `financesPage.tsx`: página principal de listagem e manipulação de usuários.
+* `financeservice.ts`: encapsula todas as chamadas HTTP ao gateway.
+* `AuthContext.tsx`: gerencia token e dados do usuário logado.
+
+---
+
+## Testes
+
+Para rodar os testes unitários, configure seu ambiente:
+
+```bash
+npm run test
+```
+
+Exemplo de cobertura de testes:
+
+```
+coverage/
+└─ finances/
+   ├─ AuthContext.test.tsx
+   ├─ financesPage.test.tsx
+   └─ financeservice.test.ts
+```
+
+---
+
+## Observações
+
+* Certifique-se de que o **API Gateway (`top-api-gateway`)** esteja rodando em `http://localhost:3000` para que o microfrontend consiga consumir os endpoints de usuários.
+* Durante o desenvolvimento, use `npm run dev` para hot reload e integração com o host.
+* Para produção, execute `npm run build` e configure o host para apontar para o build gerado (`/dist/assets/remoteEntry.
+js`).
+
+---
+
+## 👨‍💻 Autores
+
+- **Isaac Pereira** – arquitetura e desenvolvimento
+
+---
+
+## 📜 Licença
+
+Este projeto está licenciado sob os termos da licença MIT.
